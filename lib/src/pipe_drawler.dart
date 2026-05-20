@@ -1,0 +1,231 @@
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+
+import 'pipe_logic.dart';
+
+class PipeActDrawler extends StatelessWidget {
+  final String genome;
+  final int activeKnot;
+  final ValueChanged<int> onKnotTap;
+
+  /// fit=true — вписать всё дерево в холст (масштаб + центрирование).
+  /// Используется для мини-превью; основной холст рисует как раньше.
+  final bool fit;
+
+  /// hideRoot=true — не рисовать корневой токен (его добавляют лишь
+  /// чтобы сделать буфер валидным standalone-геномом для превью).
+  final bool hideRoot;
+
+  const PipeActDrawler({
+    super.key,
+    required this.genome,
+    required this.activeKnot,
+    required this.onKnotTap,
+    this.fit = false,
+    this.hideRoot = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final knots = genome.split(',').where((k) => k.isNotEmpty).toList();
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final size = Size(constraints.maxWidth, constraints.maxHeight);
+
+        return GestureDetector(
+          onTapDown: (details) {
+            final index = _hitTest(knots, size, details.localPosition);
+            if (index != -1) {
+              onKnotTap(index);
+            }
+          },
+          child: CustomPaint(
+            size: size,
+            painter: PipeDrawlerPainter(
+              knots: knots,
+              selected: activeKnot,
+              fit: fit,
+              hideRoot: hideRoot,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// проигрываем обход заново и ищем токен под точкой тапа
+  int _hitTest(List<String> knots, Size size, Offset tap) {
+    final logic = PipeLogic();
+    try {
+      for (int i = 0; i < knots.length; i++) {
+        final knot = knots[i];
+        if (logic.isKnot(knot)) {
+          logic.addKnot(knot);
+        } else {
+          logic.addList(knot);
+        }
+        final o = logic.currentOffset(size);
+        if ((o.dx - tap.dx).abs() < 6 && (o.dy - tap.dy).abs() < 6) {
+          return i;
+        }
+      }
+    } catch (_) {
+      /// оборванный геном — попадания нет
+    }
+    return -1;
+  }
+}
+
+/// один отрисованный сегмент: от предка к узлу
+class _Seg {
+  final Offset? from;
+  final Offset to;
+  final bool isKnot;
+  final bool selected;
+  /// исходный токен — нужен, чтобы дравлер мог различать вид листа
+  /// (`*a` синий, `*b` красный). Структурно оба — листья (не knot).
+  final String token;
+  _Seg(this.from, this.to, this.isKnot, this.selected, this.token);
+}
+
+class PipeDrawlerPainter extends CustomPainter {
+  final List<String> knots;
+  final int selected;
+  final bool fit;
+  final bool hideRoot;
+
+  PipeDrawlerPainter({
+    required this.knots,
+    required this.selected,
+    this.fit = false,
+    this.hideRoot = false,
+  });
+
+  final Paint flowerPaint = Paint()
+    ..color = Colors.blueAccent
+    ..strokeWidth = 5
+    ..style = PaintingStyle.fill;
+
+  /// красный лист — голова токена `b` вместо `a`. Структурно такой же
+  /// лист (баланс −1), но визуально другой «сорт» цветка.
+  final Paint flowerRedPaint = Paint()
+    ..color = Colors.red
+    ..strokeWidth = 5
+    ..style = PaintingStyle.fill;
+
+  /// жёлтый лист — голова токена `c`. Тот же приём, что и с `b`.
+  final Paint flowerYellowPaint = Paint()
+    ..color = Colors.yellow
+    ..strokeWidth = 5
+    ..style = PaintingStyle.fill;
+
+  final Paint tapPaint = Paint()
+    ..color = Colors.purpleAccent
+    ..strokeWidth = 5
+    ..style = PaintingStyle.fill;
+
+  final Paint knotPaint = Paint()
+    ..color = Colors.teal
+    ..strokeWidth = 5
+    ..style = PaintingStyle.fill;
+
+  final Paint hvostPaint = Paint()
+    ..color = Colors.grey
+    ..strokeWidth = 1;
+
+  /// обход генома -> список сегментов (свежий PipeLogic, single-pass)
+  List<_Seg> _segments(Size size) {
+    final logic = PipeLogic();
+    final segs = <_Seg>[];
+    try {
+      for (int i = 0; i < knots.length; i++) {
+        final knot = knots[i];
+        final isKnot = logic.isKnot(knot);
+        if (isKnot) {
+          logic.addKnot(knot);
+        } else {
+          logic.addList(knot);
+        }
+        segs.add(_Seg(
+          logic.ancestorOffset(size),
+          logic.currentOffset(size),
+          isKnot,
+          i == selected,
+          knot,
+        ));
+      }
+    } catch (_) {
+      /// оборванный геном (underflow стека) — рисуем что успели
+    }
+    return segs;
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    var segs = _segments(size);
+    if (segs.isEmpty) return;
+
+    /// прячем корень: убираем его сегмент, у нового первого нет предка,
+    /// чтобы не тянуть линию-«хвост» из удалённого корня
+    if (hideRoot && segs.length > 1) {
+      final rest = segs.sublist(1);
+      rest[0] = _Seg(null, rest[0].to, rest[0].isKnot, rest[0].selected, rest[0].token);
+      segs = rest;
+    }
+
+    /// вписываем дерево в холст: bbox -> масштаб с сохранением пропорций
+    Offset Function(Offset) map = (p) => p;
+    if (fit) {
+      double minX = double.infinity, minY = double.infinity;
+      double maxX = -double.infinity, maxY = -double.infinity;
+      void acc(Offset o) {
+        minX = math.min(minX, o.dx);
+        minY = math.min(minY, o.dy);
+        maxX = math.max(maxX, o.dx);
+        maxY = math.max(maxY, o.dy);
+      }
+
+      for (final s in segs) {
+        acc(s.to);
+        if (s.from != null) acc(s.from!);
+      }
+
+      const pad = 6.0;
+      final bw = math.max(maxX - minX, 1.0);
+      final bh = math.max(maxY - minY, 1.0);
+      final availW = math.max(size.width - 2 * pad, 1.0);
+      final availH = math.max(size.height - 2 * pad, 1.0);
+      final s = math.min(availW / bw, availH / bh);
+      final offX = pad + (availW - bw * s) / 2 - minX * s;
+      final offY = pad + (availH - bh * s) / 2 - minY * s;
+      map = (p) => Offset(p.dx * s + offX, p.dy * s + offY);
+    }
+
+    for (final seg in segs) {
+      final to = map(seg.to);
+      if (seg.from != null) {
+        canvas.drawLine(map(seg.from!), to, hvostPaint);
+      }
+      final isRedLeaf = !seg.isKnot && seg.token.endsWith('*b');
+      final isYellowLeaf = !seg.isKnot && seg.token.endsWith('*c');
+      final leafPaint = isRedLeaf
+          ? flowerRedPaint
+          : (isYellowLeaf ? flowerYellowPaint : flowerPaint);
+      final paint = seg.selected
+          ? tapPaint
+          : (seg.isKnot ? knotPaint : leafPaint);
+      final radius = seg.selected ? 3.0 : (seg.isKnot ? 1.5 : 2.0);
+      canvas.drawCircle(to, radius, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant PipeDrawlerPainter old) {
+    return old.selected != selected ||
+        old.fit != fit ||
+        old.hideRoot != hideRoot ||
+        old.knots.join(',') != knots.join(',');
+  }
+}

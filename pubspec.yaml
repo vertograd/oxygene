@@ -1,7 +1,7 @@
 name: oxygene
-description: "A new Flutter package project."
+description: "Виджет-превью L-system-генома: рисует ветвящееся дерево в стилизованной рамке. Принимает строку-геном, вписывает дерево в холст, не ловит тапы."
 version: 0.0.1
-homepage:
+homepage: https://github.com/vertograd/oxygene
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
