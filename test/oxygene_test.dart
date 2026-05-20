@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:oxygene/oxygene.dart';
+import 'package:oxygene/src/pipe_drawler.dart';
+import 'package:oxygene/src/pipe_logic.dart';
 
 void main() {
   testWidgets('Oxygene рисует переданный геном внутри рамки', (tester) async {
@@ -20,7 +22,7 @@ void main() {
     );
 
     expect(find.byType(Oxygene), findsOneWidget);
-    expect(find.byType(PipeActDrawler), findsOneWidget);
+    expect(find.byType(PipeDrawler), findsOneWidget);
     expect(
       find.descendant(
         of: find.byType(Oxygene),

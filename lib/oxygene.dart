@@ -4,9 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'src/pipe_drawler.dart';
 
-export 'src/pipe_logic.dart';
-export 'src/pipe_drawler.dart';
-
 class Oxygene extends StatelessWidget {
   final String genome;
   final double? width;
@@ -39,7 +36,7 @@ class Oxygene extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: IgnorePointer(
-        child: PipeActDrawler(
+        child: PipeDrawler(
           genome: genome,
           activeKnot: -1,
           onKnotTap: (_) {},

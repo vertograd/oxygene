@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'pipe_logic.dart';
 
-class PipeActDrawler extends StatelessWidget {
+class PipeDrawler extends StatelessWidget {
   final String genome;
   final int activeKnot;
   final ValueChanged<int> onKnotTap;
@@ -13,7 +13,7 @@ class PipeActDrawler extends StatelessWidget {
 
   final bool hideRoot;
 
-  const PipeActDrawler({
+  const PipeDrawler({
     super.key,
     required this.genome,
     required this.activeKnot,
@@ -150,6 +150,9 @@ class PipeDrawlerPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final scale = math.min(size.width, size.height) / 333.0;
+    hvostPaint.strokeWidth = scale;
+
     var segs = _segments(size);
     if (segs.isEmpty) return;
 
@@ -199,7 +202,7 @@ class PipeDrawlerPainter extends CustomPainter {
       final paint = seg.selected
           ? tapPaint
           : (seg.isKnot ? knotPaint : leafPaint);
-      final radius = seg.selected ? 3.0 : (seg.isKnot ? 1.5 : 2.0);
+      final radius = (seg.selected ? 3.0 : (seg.isKnot ? 1.5 : 2.0)) * scale;
       canvas.drawCircle(to, radius, paint);
     }
   }
