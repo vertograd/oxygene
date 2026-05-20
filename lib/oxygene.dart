@@ -7,11 +7,6 @@ import 'src/pipe_drawler.dart';
 export 'src/pipe_logic.dart';
 export 'src/pipe_drawler.dart';
 
-/// Неинтерактивное превью L-system-генома в стилизованной рамке:
-/// рисует геном через [PipeActDrawler] с `fit: true`, оборачивает в
-/// [IgnorePointer], чтобы тапы уходили мимо, и кладёт в `Container` с
-/// настраиваемым фоном/рамкой/скруглением. Размер по умолчанию не задан —
-/// виджет занимает столько, сколько даст родитель.
 class Oxygene extends StatelessWidget {
   final String genome;
   final double? width;

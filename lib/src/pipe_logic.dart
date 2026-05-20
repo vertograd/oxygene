@@ -1,18 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
-///
-///
-///
-///
-///
-///
-///
-///
-///
-///
-///
-///
 class PipeCoord {
   final double x;
   final double y;
@@ -22,7 +10,6 @@ class PipeCoord {
   static PipeCoord calcCoord(PipeCoord prevCoord, int spin, int hvost) {
     double rad = (spin / 6) * math.pi;
 
-    /// при 12 часовом формате синусы не обязательны
     double x = math.cos(rad);
     double y = math.sin(rad);
 
@@ -30,12 +17,10 @@ class PipeCoord {
       x = (x * 3);
       y = (y * 3);
     } else {
-      /// маштабировать по длине хвоста
       x = (x * 10 * hvost);
       y = (y * 10 * hvost);
     }
 
-    /// добавить prevCoord
     return PipeCoord(x: prevCoord.x + x, y: prevCoord.y + y);
   }
 
@@ -98,21 +83,6 @@ class PipeStack {
   }
 }
 
-///
-///
-///
-///
-///
-///
-///
-///
-///
-///
-///
-///
-///
-
-/// маштаб 1 это 1000 милиметров
 class PipeLogic {
   final stack = PipeStack();
 
@@ -146,38 +116,28 @@ class PipeLogic {
   }
 
   addList(String knot) {
-    /// получить мой слот
     PipeSlot mySlot = stack.pop();
-
-    /// print(mySlot);
 
     int hvost = _calcHvost(knot);
 
-    /// вычислить координаты свои
     PipeCoord myCoord = PipeCoord.calcCoord(mySlot.coord, mySlot.spin, hvost);
 
-    /// координаты предка
     ancestorCoord = mySlot.coord;
     currentCoord = myCoord;
   }
 
-  /// "0,0-0*0v9,3-0*a,3-0*a,"
   bool isKnot(String knot) {
-    /// если это корень конструкции
     if (_is12not6(knot) || knot == '6') return true;
 
     List<String> listHvostHead = knot.split("*");
 
     if (listHvostHead.length == 2) {
-      /// String hvost = listHvostHead[0];
       String head = listHvostHead[1];
 
-      /// 3 если head это число 0123457891011
       if (_is12not6(head)) {
         return true;
       }
 
-      /// 3v5 усли это не равные числа 0 11  разделенные v
       List<String> listLSlotRSlot = head.split("v");
       if (listLSlotRSlot.length == 2) {
         String lSlot = listLSlotRSlot[0];
@@ -190,13 +150,7 @@ class PipeLogic {
     return false;
   }
 
-  ///
-  ///
-  ///
-
-  /// если head это число 0123457891011
   bool _is12not6(String str) {
-    /// 6 слот всегда занят хвостом
     if (str == '1' || str == '2' || str == '3' || str == '4') return true;
     if (str == '5' || str == '7' || str == '8') return true;
     if (str == '9' || str == '10' || str == '11' || str == '0') return true;
@@ -217,28 +171,21 @@ class PipeLogic {
   }
 
   _addNextKnot(String knot) {
-    /// получить мой слот
     PipeSlot mySlot = stack.pop();
-
-    /// print(mySlot);
 
     int hvost = _calcHvost(knot);
 
-    /// вычислить координаты свои
     PipeCoord myCoord = PipeCoord.calcCoord(mySlot.coord, mySlot.spin, hvost);
 
-    /// координаты предка
     ancestorCoord = mySlot.coord;
     currentCoord = myCoord;
 
-    /// создать новые слоты и добавить их в стек
     int ancestorSpin = mySlot.spin;
 
     List<String> listHvostHead = knot.split("*");
     if (listHvostHead.length == 2) {
       String head = listHvostHead[1];
       if (_is12not6(head)) {
-        /// создать новые слоты и добавить их в стек
         final slot1 = PipeSlot.calcSpin(head, currentCoord!, ancestorSpin);
         stack.push(slot1);
       }
@@ -248,19 +195,15 @@ class PipeLogic {
         String lSlot = listLSlotRSlot[0];
         String rSlot = listLSlotRSlot[1];
 
-        /// создать новые слоты и добавить их в стек
         final slot1 = PipeSlot.calcSpin(lSlot, currentCoord!, ancestorSpin);
         stack.push(slot1);
         final slot2 = PipeSlot.calcSpin(rSlot, currentCoord!, ancestorSpin);
         stack.push(slot2);
       }
     }
-
-    /// print(stack);
   }
 
   int _calcHvost(String knot) {
-    /// "0,0-0*0v9,3-0*a,3-0*a,"
     List<String> listHvost = knot.split("-");
     String hvostStr = listHvost[0];
     return int.parse(hvostStr);

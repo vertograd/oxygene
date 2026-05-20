@@ -21,8 +21,6 @@ void main() {
 
     expect(find.byType(Oxygene), findsOneWidget);
     expect(find.byType(PipeActDrawler), findsOneWidget);
-    // Material сам подкладывает свои IgnorePointer — нас интересует только
-    // тот, что внутри Oxygene (`ignoring: true`).
     expect(
       find.descendant(
         of: find.byType(Oxygene),

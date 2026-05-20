@@ -9,12 +9,8 @@ class PipeActDrawler extends StatelessWidget {
   final int activeKnot;
   final ValueChanged<int> onKnotTap;
 
-  /// fit=true — вписать всё дерево в холст (масштаб + центрирование).
-  /// Используется для мини-превью; основной холст рисует как раньше.
   final bool fit;
 
-  /// hideRoot=true — не рисовать корневой токен (его добавляют лишь
-  /// чтобы сделать буфер валидным standalone-геномом для превью).
   final bool hideRoot;
 
   const PipeActDrawler({
@@ -55,7 +51,6 @@ class PipeActDrawler extends StatelessWidget {
     );
   }
 
-  /// проигрываем обход заново и ищем токен под точкой тапа
   int _hitTest(List<String> knots, Size size, Offset tap) {
     final logic = PipeLogic();
     try {
@@ -72,20 +67,16 @@ class PipeActDrawler extends StatelessWidget {
         }
       }
     } catch (_) {
-      /// оборванный геном — попадания нет
     }
     return -1;
   }
 }
 
-/// один отрисованный сегмент: от предка к узлу
 class _Seg {
   final Offset? from;
   final Offset to;
   final bool isKnot;
   final bool selected;
-  /// исходный токен — нужен, чтобы дравлер мог различать вид листа
-  /// (`*a` синий, `*b` красный). Структурно оба — листья (не knot).
   final String token;
   _Seg(this.from, this.to, this.isKnot, this.selected, this.token);
 }
@@ -108,14 +99,11 @@ class PipeDrawlerPainter extends CustomPainter {
     ..strokeWidth = 5
     ..style = PaintingStyle.fill;
 
-  /// красный лист — голова токена `b` вместо `a`. Структурно такой же
-  /// лист (баланс −1), но визуально другой «сорт» цветка.
   final Paint flowerRedPaint = Paint()
     ..color = Colors.red
     ..strokeWidth = 5
     ..style = PaintingStyle.fill;
 
-  /// жёлтый лист — голова токена `c`. Тот же приём, что и с `b`.
   final Paint flowerYellowPaint = Paint()
     ..color = Colors.yellow
     ..strokeWidth = 5
@@ -135,7 +123,6 @@ class PipeDrawlerPainter extends CustomPainter {
     ..color = Colors.grey
     ..strokeWidth = 1;
 
-  /// обход генома -> список сегментов (свежий PipeLogic, single-pass)
   List<_Seg> _segments(Size size) {
     final logic = PipeLogic();
     final segs = <_Seg>[];
@@ -157,7 +144,6 @@ class PipeDrawlerPainter extends CustomPainter {
         ));
       }
     } catch (_) {
-      /// оборванный геном (underflow стека) — рисуем что успели
     }
     return segs;
   }
@@ -167,15 +153,12 @@ class PipeDrawlerPainter extends CustomPainter {
     var segs = _segments(size);
     if (segs.isEmpty) return;
 
-    /// прячем корень: убираем его сегмент, у нового первого нет предка,
-    /// чтобы не тянуть линию-«хвост» из удалённого корня
     if (hideRoot && segs.length > 1) {
       final rest = segs.sublist(1);
       rest[0] = _Seg(null, rest[0].to, rest[0].isKnot, rest[0].selected, rest[0].token);
       segs = rest;
     }
 
-    /// вписываем дерево в холст: bbox -> масштаб с сохранением пропорций
     Offset Function(Offset) map = (p) => p;
     if (fit) {
       double minX = double.infinity, minY = double.infinity;
