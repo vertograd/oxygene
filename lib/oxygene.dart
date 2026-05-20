@@ -18,6 +18,7 @@ class Oxygene extends StatelessWidget {
   final double? height;
   final Color backgroundColor;
   final Color borderColor;
+  final double borderWidth;
   final BorderRadiusGeometry borderRadius;
 
   const Oxygene({
@@ -27,6 +28,7 @@ class Oxygene extends StatelessWidget {
     this.height,
     this.backgroundColor = Colors.white,
     this.borderColor = Colors.black26,
+    this.borderWidth = 1,
     this.borderRadius = const BorderRadius.all(Radius.circular(4)),
   });
 
@@ -37,7 +39,7 @@ class Oxygene extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
         color: backgroundColor,
-        border: Border.all(color: borderColor),
+        border: Border.all(color: borderColor, width: borderWidth),
         borderRadius: borderRadius,
       ),
       clipBehavior: Clip.antiAlias,
