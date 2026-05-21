@@ -12,12 +12,16 @@ class PipeDrawler extends StatelessWidget {
 
   final bool hideRoot;
 
+  /// множитель радиуса точек-листьев (кончиков). 1.0 — штатный размер.
+  final double leafScale;
+
   const PipeDrawler({
     super.key,
     required this.genome,
     required this.activeKnot,
     this.fit = false,
     this.hideRoot = false,
+    this.leafScale = 1.0,
   });
 
   @override
@@ -35,6 +39,7 @@ class PipeDrawler extends StatelessWidget {
             selected: activeKnot,
             fit: fit,
             hideRoot: hideRoot,
+            leafScale: leafScale,
           ),
         );
       },
@@ -57,11 +62,15 @@ class PipeDrawlerPainter extends CustomPainter {
   final bool fit;
   final bool hideRoot;
 
+  /// множитель радиуса точек-листьев (кончиков). 1.0 — штатный размер.
+  final double leafScale;
+
   PipeDrawlerPainter({
     required this.knots,
     required this.selected,
     this.fit = false,
     this.hideRoot = false,
+    this.leafScale = 1.0,
   });
 
   final Paint flowerPaint = Paint()
@@ -171,7 +180,8 @@ class PipeDrawlerPainter extends CustomPainter {
           : (isYellowLeaf ? flowerYellowPaint : flowerPaint);
       final paint =
           seg.selected ? tapPaint : (seg.isKnot ? knotPaint : leafPaint);
-      final radius = (seg.selected ? 3.0 : (seg.isKnot ? 1.5 : 2.0)) * scale;
+      final radius =
+          (seg.selected ? 3.0 : (seg.isKnot ? 1.5 : 2.0 * leafScale)) * scale;
       canvas.drawCircle(to, radius, paint);
     }
   }
@@ -181,6 +191,7 @@ class PipeDrawlerPainter extends CustomPainter {
     return old.selected != selected ||
         old.fit != fit ||
         old.hideRoot != hideRoot ||
+        old.leafScale != leafScale ||
         old.knots.join(',') != knots.join(',');
   }
 }

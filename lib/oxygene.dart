@@ -10,12 +10,16 @@ class Oxygene extends StatelessWidget {
   final double? height;
   final Color backgroundColor;
 
+  /// множитель радиуса точек-листьев (кончиков). 1.0 — штатный размер.
+  final double leafScale;
+
   const Oxygene({
     super.key,
     required this.genome,
     this.width,
     this.height,
     this.backgroundColor = Colors.white,
+    this.leafScale = 2.0,
   });
 
   @override
@@ -30,6 +34,7 @@ class Oxygene extends StatelessWidget {
             genome: genome,
             activeKnot: -1,
             fit: true,
+            leafScale: leafScale,
           ),
         ),
       ),
