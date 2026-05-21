@@ -39,7 +39,6 @@ class Oxygene extends StatelessWidget {
         child: PipeDrawler(
           genome: genome,
           activeKnot: -1,
-          onKnotTap: (_) {},
           fit: true,
         ),
       ),

@@ -7,7 +7,6 @@ import 'pipe_logic.dart';
 class PipeDrawler extends StatelessWidget {
   final String genome;
   final int activeKnot;
-  final ValueChanged<int> onKnotTap;
 
   final bool fit;
 
@@ -17,7 +16,6 @@ class PipeDrawler extends StatelessWidget {
     super.key,
     required this.genome,
     required this.activeKnot,
-    required this.onKnotTap,
     this.fit = false,
     this.hideRoot = false,
   });
@@ -30,45 +28,17 @@ class PipeDrawler extends StatelessWidget {
       builder: (context, constraints) {
         final size = Size(constraints.maxWidth, constraints.maxHeight);
 
-        return GestureDetector(
-          onTapDown: (details) {
-            final index = _hitTest(knots, size, details.localPosition);
-            if (index != -1) {
-              onKnotTap(index);
-            }
-          },
-          child: CustomPaint(
-            size: size,
-            painter: PipeDrawlerPainter(
-              knots: knots,
-              selected: activeKnot,
-              fit: fit,
-              hideRoot: hideRoot,
-            ),
+        return CustomPaint(
+          size: size,
+          painter: PipeDrawlerPainter(
+            knots: knots,
+            selected: activeKnot,
+            fit: fit,
+            hideRoot: hideRoot,
           ),
         );
       },
     );
-  }
-
-  int _hitTest(List<String> knots, Size size, Offset tap) {
-    final logic = PipeLogic();
-    try {
-      for (int i = 0; i < knots.length; i++) {
-        final knot = knots[i];
-        if (logic.isKnot(knot)) {
-          logic.addKnot(knot);
-        } else {
-          logic.addList(knot);
-        }
-        final o = logic.currentOffset(size);
-        if ((o.dx - tap.dx).abs() < 6 && (o.dy - tap.dy).abs() < 6) {
-          return i;
-        }
-      }
-    } catch (_) {
-    }
-    return -1;
   }
 }
 
@@ -143,8 +113,7 @@ class PipeDrawlerPainter extends CustomPainter {
           knot,
         ));
       }
-    } catch (_) {
-    }
+    } catch (_) {}
     return segs;
   }
 
@@ -158,7 +127,8 @@ class PipeDrawlerPainter extends CustomPainter {
 
     if (hideRoot && segs.length > 1) {
       final rest = segs.sublist(1);
-      rest[0] = _Seg(null, rest[0].to, rest[0].isKnot, rest[0].selected, rest[0].token);
+      rest[0] = _Seg(
+          null, rest[0].to, rest[0].isKnot, rest[0].selected, rest[0].token);
       segs = rest;
     }
 
@@ -199,9 +169,8 @@ class PipeDrawlerPainter extends CustomPainter {
       final leafPaint = isRedLeaf
           ? flowerRedPaint
           : (isYellowLeaf ? flowerYellowPaint : flowerPaint);
-      final paint = seg.selected
-          ? tapPaint
-          : (seg.isKnot ? knotPaint : leafPaint);
+      final paint =
+          seg.selected ? tapPaint : (seg.isKnot ? knotPaint : leafPaint);
       final radius = (seg.selected ? 3.0 : (seg.isKnot ? 1.5 : 2.0)) * scale;
       canvas.drawCircle(to, radius, paint);
     }
