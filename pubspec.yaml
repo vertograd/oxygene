@@ -4,7 +4,7 @@
 name: oxygene
 description: "Виджет-превью L-system-генома: рисует ветвящееся дерево. Принимает строку-геном, вписывает дерево в холст. Рамку рисует вызывающая сторона."
 version: 0.0.1
-homepage: https://github.com/vertograd/oxygene
+homepage: https://github.com/limenhort/oxygene
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
