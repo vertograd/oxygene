@@ -12,7 +12,6 @@ class PipeDrawler extends StatelessWidget {
 
   final bool hideRoot;
 
-  /// множитель радиуса точек-листьев (кончиков). 1.0 — штатный размер.
   final double leafScale;
 
   const PipeDrawler({

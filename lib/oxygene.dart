@@ -11,7 +11,6 @@ class Oxygene extends StatelessWidget {
   final double? height;
   final Color backgroundColor;
 
-  /// множитель радиуса точек-листьев (кончиков). 1.0 — штатный размер.
   final double leafScale;
 
   const Oxygene({
@@ -31,8 +30,6 @@ class Oxygene extends StatelessWidget {
       child: ColoredBox(
         color: backgroundColor,
         child: IgnorePointer(
-          /// геном может быть короткой формой (`old || buffer | n`) —
-          /// разворачиваем в полное дерево; плоский геном проходит как есть
           child: PipeDrawler(
             genome: GenomeShortForm.expand(genome),
             activeKnot: -1,
