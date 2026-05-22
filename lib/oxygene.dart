@@ -2,6 +2,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'src/genome_short_form.dart';
 import 'src/pipe_drawler.dart';
 
 class Oxygene extends StatelessWidget {
@@ -30,8 +31,10 @@ class Oxygene extends StatelessWidget {
       child: ColoredBox(
         color: backgroundColor,
         child: IgnorePointer(
+          /// геном может быть короткой формой (`old || buffer | n`) —
+          /// разворачиваем в полное дерево; плоский геном проходит как есть
           child: PipeDrawler(
-            genome: genome,
+            genome: GenomeShortForm.expand(genome),
             activeKnot: -1,
             fit: true,
             leafScale: leafScale,
