@@ -26,18 +26,18 @@ straight into the `genome:` argument below.
 
 ## Getting started
 
-This package is distributed from its Git repository (not pub.dev). Add it to
-your app's `pubspec.yaml`:
+Add it to your app's `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  oxygene:
-    git:
-      url: https://github.com/limenhort/oxygene.git
-      ref: v1.0.0
+  oxygene: ^1.0.0
 ```
 
-Then run `flutter pub get`.
+Or run:
+
+```bash
+flutter pub add oxygene
+```
 
 ## Usage
 
