@@ -73,17 +73,17 @@ class PipeDrawlerPainter extends CustomPainter {
   });
 
   final Paint flowerPaint = Paint()
-    ..color = Colors.blueAccent
+    ..color = Colors.blueAccent.withValues(alpha: 0.6)
     ..strokeWidth = 5
     ..style = PaintingStyle.fill;
 
   final Paint flowerRedPaint = Paint()
-    ..color = Colors.red
+    ..color = Colors.red.withValues(alpha: 0.6)
     ..strokeWidth = 5
     ..style = PaintingStyle.fill;
 
   final Paint flowerYellowPaint = Paint()
-    ..color = Colors.yellow
+    ..color = Colors.yellow.withValues(alpha: 0.6)
     ..strokeWidth = 5
     ..style = PaintingStyle.fill;
 
