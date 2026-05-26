@@ -73,17 +73,27 @@ class PipeDrawlerPainter extends CustomPainter {
   });
 
   final Paint flowerPaint = Paint()
-    ..color = Colors.blueAccent.withValues(alpha: 0.6)
+    ..color = Colors.blueAccent
     ..strokeWidth = 5
     ..style = PaintingStyle.fill;
 
   final Paint flowerRedPaint = Paint()
-    ..color = Colors.red.withValues(alpha: 0.6)
+    ..color = Colors.red
     ..strokeWidth = 5
     ..style = PaintingStyle.fill;
 
   final Paint flowerYellowPaint = Paint()
-    ..color = Colors.yellow.withValues(alpha: 0.6)
+    ..color = Colors.yellow
+    ..strokeWidth = 5
+    ..style = PaintingStyle.fill;
+
+  final Paint flowerBlackPaint = Paint()
+    ..color = Colors.black
+    ..strokeWidth = 5
+    ..style = PaintingStyle.fill;
+
+  final Paint flowerWhitePaint = Paint()
+    ..color = Colors.white
     ..strokeWidth = 5
     ..style = PaintingStyle.fill;
 
@@ -172,11 +182,20 @@ class PipeDrawlerPainter extends CustomPainter {
       if (seg.from != null) {
         canvas.drawLine(map(seg.from!), to, hvostPaint);
       }
-      final isRedLeaf = !seg.isKnot && seg.token.endsWith('*b');
-      final isYellowLeaf = !seg.isKnot && seg.token.endsWith('*c');
+      final isLeaf = !seg.isKnot;
+      final isRedLeaf = isLeaf && seg.token.endsWith('*b');
+      final isYellowLeaf = isLeaf && seg.token.endsWith('*c');
+      final isBlackLeaf = isLeaf && seg.token.endsWith('*d');
+      final isWhiteLeaf = isLeaf && seg.token.endsWith('*w');
       final leafPaint = isRedLeaf
           ? flowerRedPaint
-          : (isYellowLeaf ? flowerYellowPaint : flowerPaint);
+          : isYellowLeaf
+              ? flowerYellowPaint
+              : isBlackLeaf
+                  ? flowerBlackPaint
+                  : isWhiteLeaf
+                      ? flowerWhitePaint
+                      : flowerPaint;
       final paint =
           seg.selected ? tapPaint : (seg.isKnot ? knotPaint : leafPaint);
       final radius =
